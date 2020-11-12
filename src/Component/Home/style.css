@@ -1,0 +1,27 @@
+.profile-image{
+    width: 40px;
+    height: 40px;
+}
+.name{
+    float: right;
+    color: #000;
+}
+.chatbox{
+    width: 95%;
+    height: calc(100% - 40px);
+    margin-top: 20px;
+    padding: 0px;
+}
+.userMessage{
+    width: 20px;
+}
+.card{
+    height: 94vh;
+}
+.card-body{
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+.form-rounded{
+    border-radius: 1rem;
+}
