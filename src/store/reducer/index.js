@@ -1,21 +1,21 @@
 
 
 const INITIAL_STATE ={
-    users : [
-        {
-            name : "Ahemr",
-            email : 'Afaqe@gmail.com'
-        }
-    ]
+    users :  [],
+    current_user : {} 
 }
 
 export default (state = INITIAL_STATE,action) => {
-    console.log(action)
     switch (action.type) {
-        case "Setdata" :
+        case "GETUSERS" :
             return ({
                 ...state,
-                name : [...state.users,action.payload]
+                users : action.payload
+            })
+            case "SETUSER" :
+            return ({
+                ...state,
+                current_user : action.payload
             })
     }
     return state

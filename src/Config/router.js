@@ -11,8 +11,8 @@ class AppRouter extends React.Component{
         return(
             <div>
                 <Router>
-                    <Route exact path="/" component={Home} />
-                    <Route path="/facebook" component={Facebook} />
+                    <Route exact path="/" component={Facebook} />
+                    <Route path="/home" component={Home} />
                 </Router>
             </div>
         )
