@@ -1,6 +1,7 @@
 import React from 'react';
 import './style.css';
 import { connect } from 'react-redux';
+import firebase from '../../Config/firebase'
 import { get_users } from '../../store/action'
 import User from './../../Images/User/user.png'
 
@@ -18,29 +19,52 @@ class Home extends React.Component {
     this.setState({
       chat_user: user
     })
+    let current_user = this.props.current_user
+    let merge_uid = this.uid_merge(current_user.uid, user.uid)
+    this.get_message(merge_uid)
   }
 
-  uid_merge = (uid1,uid2)=>{
-    if(uid1<uid2){
-      return uid1+uid2
-    }else{
-      return uid2+uid1
+  get_message = (uid) => {
+    firebase.database().ref('/').child(`chats/${uid}`).on('child_added', (messages) => {
+      this.state.chats.push(messages.val())
+      this.setState({
+        chats: this.state.chats
+      })
+    })
+  }
+
+  uid_merge = (uid1, uid2) => {
+    if (uid1 < uid2) {
+      return uid1 + uid2
+    } else {
+      return uid2 + uid1
     }
   }
 
   send_message = () => {
-    // let user = this.props.current_user
-    // let chat_user = this.state.chat_user
-    // let merge_uid = this.uid_merge(user.uid,chat_user.uid)
-
-
-    this.state.chats.push({
-      message: this.state.message
+    let user = this.props.current_user
+    let chat_user = this.state.chat_user
+    let merge_uid = this.uid_merge(user.uid, chat_user.uid)
+    
+    firebase.database().ref('/').child(`chats/${merge_uid}`).push({
+      message: this.state.message,
+      profile : user.profile,
+      name: user.name,
+      uid: user.uid,
     })
     this.setState({
-      chats: this.state.chats,
       message: ""
     })
+
+
+
+    // this.state.chats.push({
+    //   message: this.state.message
+    // })
+    // this.setState({
+    //   chats: this.state.chats,
+    //   message: ""
+    // })
   }
 
   componentDidMount() {
@@ -69,17 +93,13 @@ class Home extends React.Component {
                 <div className="col border border-primary"></div>
                 <br />
                 <div class="list-group">
-                  {/* v.uid !== user.uid && */}
                   {this.props.users.map((v, i) => {
-                    return <button type="button" key={i} onClick={() => this.chats(v)} class="list-group-item list-group-item-action">
+
+                    return v.uid !== user.uid && <button type="button" key={i} onClick={() => this.chats(v)} class="list-group-item list-group-item-action">
                       <img src={v.profile} className="rounded-circle profile-image" alt="profile" />
                       <p className="float-right">{v.name}</p>
                     </button>
                   })}
-                  <button type="button" class="list-group-item list-group-item-action">
-                    <img src={User} className="rounded-circle profile-image" alt="profile" />
-                    <p className="float-right">Friend name</p>
-                  </button>
 
 
                 </div>
@@ -105,35 +125,38 @@ class Home extends React.Component {
 
 
                 <div className="card-body ">
-                  {/* Left toast (Friend message) */}
-                  <div className="w-50" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div className="toast-header">
-                      <img src={User} className="rounded userMessage mr-2" alt="Friend" />
-                      <strong className="mr-auto">Friend Name</strong>
-                      <small>11 mins ago</small>
-                    </div>
-                    <div className="toast-body">
-                      Hello, Friend message
-                    </div>
-                  </div>
 
-                  {this.state.chats.map((v,i)=>{
-                  return <div aria-live="polite"  key={i} aria-atomic="true" style={{ position: 'relative', minHeight: '100px' }}>
-                  <div className="w-50" style={{ position: 'absolute', top: 0, right: 0 }}>
+                  {this.state.chats.map((v, i) => {
+                    if(v.uid===user.uid){
+                    return <div aria-live="polite" key={i} aria-atomic="true" style={{ position: 'relative', minHeight: '100px' }}>
+                      <div className="w-50" style={{ position: 'absolute', top: 0, right: 0 }}>
+                        <div className="toast-header">
+                          <img src={user.profile} className="rounded userMessage mr-2" alt="User" />
+                          <strong className="mr-auto">{user.name}</strong>
+                          <small>11 mins ago</small>
+                        </div>
+                        <div className="toast-body">
+                          {/* Hello, User message */}
+                          {v.message}
+                        </div>
+                      </div>
+
+                    </div>
+                    }else{
+                    return <div className="w-50" role="alert" key={i} aria-live="assertive" aria-atomic="true">
                     <div className="toast-header">
-                      <img src={User} className="rounded userMessage mr-2" alt="User" />
-                      <strong className="mr-auto">User Name</strong>
+                      <img src={v.profile} className="rounded userMessage mr-2" alt="Friend" />
+                    <strong className="mr-auto">{v.name}</strong>
                       <small>11 mins ago</small>
                     </div>
                     <div className="toast-body">
-                      {/* Hello, User message */}
                       {v.message}
                     </div>
                   </div>
-                </div>
+                    }
+
+
                   })}
-
-
                 </div>
 
 
